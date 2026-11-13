@@ -1,40 +1,38 @@
 
 BEGIN {
-    startTime = 0
-    stopTime = 0
-    size = 0
-    count = 0
+    ssize = 0;
+    startTime = -1;
+    stopTime = 0;
+    tput = 0;
 }
 
 {
-    event = $1
-    time = $2
-    destination = $4
-    packet = $5
-    pktSize = $6
+    event = $1;
+    time = $2;
+    size = $6;
 
-    # Count only TCP packets received at node 9
-    if (event == "r" && destination == 9 && packet == "tcp") {
+    if (event == "+") {
+        if (startTime == -1 || time < startTime) {
+            startTime = time;
+        }
+    }
 
-        if (count == 0) {
-            startTime = time
+    if (event == "r") {
+        if (time > stopTime) {
+            stopTime = time;
         }
 
-        stopTime = time
-        size += pktSize
-        count++
+        ssize += size;
     }
 }
 
 END {
-    if (stopTime > startTime) {
-        throughput = (size * 8) / ((stopTime - startTime) * 1000)
+    if (startTime >= 0 && stopTime > startTime) {
+        tput = (ssize / (stopTime - startTime)) * (8 / 1000);
 
-        printf "Total packets received: %d\n", count
-        printf "Total data received: %d bytes\n", size
-        printf "Throughput: %.2f Kbps\n", throughput
+        printf("Throughput = %.2f Kbps\n", tput);
     }
     else {
-        print "No TCP packets received."
+        print "Cannot calculate throughput";
     }
 }
