@@ -1,140 +1,55 @@
-
 import java.util.Scanner;
 
 public class DistanceVector {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
 
-    static final int INF = 999;
+        System.out.print("Enter the number of routers: ");
+        int n = sc.nextInt();
 
-    // Method to implement Distance Vector Algorithm
-    static void distanceVector(int n, int[][] cost) {
-
+        int[][] cost = new int[n][n];
         int[][] dist = new int[n][n];
         int[][] nextHop = new int[n][n];
 
-        // Initialize distance and next hop tables
+        System.out.println("\nEnter the cost matrix (use 999 for infinity):");
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-
+                cost[i][j] = sc.nextInt();
                 dist[i][j] = cost[i][j];
                 nextHop[i][j] = j;
-
             }
         }
 
-        System.out.println("\nInitial Distance Table:");
-        printTable(n, dist, nextHop);
-
-        boolean updated = true;
+        // Distance Vector Algorithm
+        boolean updated;
         int iteration = 0;
 
-        // Repeat until no distance changes
-        while (updated) {
-
+        do {
             updated = false;
             iteration++;
-
-            System.out.println("\n--- Iteration " + iteration + " ---");
-
             for (int i = 0; i < n; i++) {
-
                 for (int j = 0; j < n; j++) {
-
                     for (int k = 0; k < n; k++) {
-
-                        // Check whether path through k is shorter
-                        if (cost[i][k] != INF &&
-                            dist[k][j] != INF &&
-                            dist[i][j] > cost[i][k] + dist[k][j]) {
-
+                        if (dist[i][j] > cost[i][k] + dist[k][j]) {
                             dist[i][j] = cost[i][k] + dist[k][j];
-
                             nextHop[i][j] = k;
-
                             updated = true;
                         }
                     }
                 }
             }
-
-            printTable(n, dist, nextHop);
-        }
+        } while (updated);
 
         System.out.println("\nConverged after " + iteration + " iterations.");
-        
-        // Display final routing table
-        System.out.println("\nFinal Routing Table:");
-        printTable(n, dist, nextHop);
 
-        // Display shortest paths
-        System.out.println("\nShortest Paths:");
-
+        // Print Routing Tables
         for (int i = 0; i < n; i++) {
+            System.out.println("\nRouting Table for Router " + (char) (65 + i) + ":");
+            System.out.println("Destination\tNext Hop\tCost");
             for (int j = 0; j < n; j++) {
-
-                System.out.print("Router " + (i + 1) +
-                    " to Router " + (j + 1) +
-                    " : Cost = " + dist[i][j]);
-
-                if (dist[i][j] == INF) {
-                    System.out.println(", No path");
-                } else if (i == j) {
-                    System.out.println(", Same router");
-                } else {
-                    System.out.println(", Next Hop = Router " +
-                        (nextHop[i][j] + 1));
-                }
+                System.out.println((char) (65 + j) + "\t\t" + (char) (65 + nextHop[i][j]) + "\t\t" + dist[i][j]);
             }
         }
-    }
-
-    // Method to print distance table
-    static void printTable(int n, int[][] dist, int[][] nextHop) {
-
-        for (int i = 0; i < n; i++) {
-
-            System.out.println("\nRouter " + (i + 1));
-
-            System.out.println("Destination\tCost\tNext Hop");
-
-            for (int j = 0; j < n; j++) {
-
-                System.out.print("Router " + (j + 1) + "\t\t");
-
-                if (dist[i][j] == INF) {
-                    System.out.print("INF\t");
-                } else {
-                    System.out.print(dist[i][j] + "\t");
-                }
-
-                System.out.println("Router " + (nextHop[i][j] + 1));
-            }
-        }
-    }
-
-    // Main method
-    public static void main(String[] args) {
-
-        Scanner sc = new Scanner(System.in);
-
-        System.out.print("Enter number of routers: ");
-        int n = sc.nextInt();
-
-        int[][] cost = new int[n][n];
-
-        System.out.println("\nEnter the cost matrix:");
-        System.out.println("Enter 999 if there is no direct connection.");
-
-        for (int i = 0; i < n; i++) {
-
-            System.out.println("Enter row " + (i + 1) + ":");
-
-            for (int j = 0; j < n; j++) {
-                cost[i][j] = sc.nextInt();
-            }
-        }
-
-        distanceVector(n, cost);
-
         sc.close();
     }
 }
